@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from django.db import models
+from datetime import date
 from .models import TaskStatuses, Task
 
 
 def index(request):
-    queryset = Task.objects.filter(created__gte='2019-04-01', created__lt='2019-09-01')\
+    start_date = date(2019, 4, 2)
+    end_date = date(2019, 9, 2)
+    queryset = Task.objects.filter(created__range=(start_date, end_date))\
         .annotate(Checked=models.Subquery(
             TaskStatuses.objects.annotate(max_datetime=models.Max('created'))
             .filter(task_id=models.OuterRef('id'), status_type=3)
